@@ -1,0 +1,50 @@
+@import '../../main/styles/variables.styl'
+@import '../../main/styles/parts/question.styl'
+@import '../../main/styles/parts/answers.styl'
+
+
+
+.questions-layout
+	display flex
+	flex-direction row
+	align-items flex-start
+	flex-wrap: wrap
+	padding: 1rem 0.5rem;
+
+	.questions-layout__col
+		width 33.333333%
+		padding: 1.2rem;
+		display flex
+		flex-direction column
+
+
+question()
+answers()
+
+
+
+
+
+.filter
+	background-color #0f0f0f
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+	padding: 0.6rem 0rem;
+
+	.filter__button
+		cursor pointer
+		color white
+		margin: 0 10px;
+
+	.filter__checkbox
+		color white
+		margin: 0 10px;
+
+	.filter__input
+		margin: 0 10px;
+		background: #5D5D5D;
+		border: none;
+		padding: 0.2rem 1rem;
+		color: white;
