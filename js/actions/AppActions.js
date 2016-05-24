@@ -1,145 +1,111 @@
 
 
 import {
-	REQUEST_QUESTIONS, RECEIVE_QUESTIONS, APPEND_QUESTIONS,
-	UPDATE_QUESTION,
-	UPDATE_FILTER,
-	UPDATE_FILTER_OFFSET
+	TOGGLE_WRAPPER,
+	ADD_QUESTION, QUESTION_ADDED, CHANGE_QUESTION_TEXT, CHANGE_QUESTION_CATEGORY, ADD_QUESTION_IMAGE, REMOVE_QUESTION_IMAGE,
+	ADD_ANSWER, CHANGE_ANSWER_TEXT, REMOVE_ANSWER, ADD_ANSWER_IMAGE, REMOVE_ANSWER_IMAGE
 } from '../constants/AppConstants';
 
 
-function requestQuestions() {
-	return {
-		type: REQUEST_QUESTIONS
+export function addQuestion() {
+	return (dispatch, getState) => {
+		return sendQuestion(getState().question)
+			.then(data => dispatch(questionAdded(data)));
 	}
 }
 
-function receiveQuestions(json) {
-	return {
-		type: RECEIVE_QUESTIONS,
-		requestQuestions: json,
-		receivedAt: Date.now()
-	}
-}
-
-
-function getQuestions(filter) {
+function sendQuestion(data) {
 	return new Promise((resolve, reject) => {
 		$.ajax({
-			type: 'GET',
+			type: 'POST',
 			url: main.urls.questions,
-			data: filter,
+			data: JSON.stringify(data),
 			success: resolve,
 			error: reject
 		});
 	})
 }
 
-export function fetchQuestions() {
-	return (dispatch, getState) => {
-		dispatch(requestQuestions());
-		return getQuestions(getState().filter)
-			.then(data => dispatch(receiveQuestions(data)));
-	}
-}
-
-
-
-
-
-
-function updateQuestion(data, id) {
+export function questionAdded(data) {
 	return {
-		type: UPDATE_QUESTION,
-		questionId: id,
-		requestQuestion: data
-	}
-}
-
-export function likeQuestion(questionId) {
-
-	return dispatch => {
-		return new Promise((resolve, reject) => {
-			$.ajax({
-				type: 'POST',
-				url: main.urls.questionLike,
-				data: JSON.stringify({
-					question_id: questionId
-				}),
-				success: resolve,
-				error: reject
-			});
-		}).then(data => dispatch(updateQuestion(data, questionId)));
+		type: QUESTION_ADDED,
+		data: data
 	}
 }
 
 
 
-
-
-export function chooseAnswer(questionId, answerId) {
-	return dispatch => {
-		return new Promise((resolve, reject) => {
-			$.ajax({
-				type: 'POST',
-				url: main.urls.questionChooseAnswer,
-				data: JSON.stringify({
-					question_id: questionId,
-					answer_id: answerId
-				}),
-				success: resolve,
-				error: reject
-			});
-		}).then(data => dispatch(updateQuestion(data, questionId)));
-	}
-}
-
-
-
-
-
-
-export function changeFilter(filter) {
-	return (dispatch, getState) => {
-		dispatch(updateFilter(filter));
-		dispatch(fetchQuestions());
-	}
-}
-
-function updateFilter(filter) {
+export function toggleWrapper() {
 	return {
-		type: UPDATE_FILTER,
-		filter: filter
+		type: TOGGLE_WRAPPER
 	}
 }
 
-
-export function changeFilterOffset() {
-	return (dispatch, getState) => {
-		dispatch(updateFilterOffset());
-		dispatch(appendQuestionRequest());
-	}
-}
-
-function updateFilterOffset() {
+export function changeQuestionText(text) {
 	return {
-		type: UPDATE_FILTER_OFFSET
+		type: CHANGE_QUESTION_TEXT,
+		text: text
 	}
 }
 
-export function appendQuestionRequest() {
-	return (dispatch, getState) => {
-		return getQuestions(getState().filter)
-			.then(data => data.length && dispatch(appendQuestions(data)));
-	}
-}
-
-function appendQuestions(data) {
+export function changeQuestionCategory(categoryId) {
 	return {
-		type: APPEND_QUESTIONS,
-		requestQuestions: data
+		type: CHANGE_QUESTION_CATEGORY,
+		categoryId: categoryId
+	}
+}
+
+export function addQuestionImage(image) {
+	return {
+		type: ADD_QUESTION_IMAGE,
+		image: image
 	}
 }
 
 
+export function removeQuestionImage(key) {
+	return {
+		type: REMOVE_QUESTION_IMAGE,
+		key: key
+	}
+}
+
+
+export function addAnswer() {
+	return {
+		type: ADD_ANSWER
+	}
+}
+
+export function removeAnswer(answerKey) {
+	return {
+		type: REMOVE_ANSWER,
+		answerKey: answerKey
+	}
+}
+
+
+export function changeAnswerText(data) {
+	return {
+		type: CHANGE_ANSWER_TEXT,
+		text: data.text,
+		answerKey: data.answerKey
+	}
+}
+
+export function addAnswerImage(data) {
+	return {
+		type: ADD_ANSWER_IMAGE,
+		image: data.image,
+		answerKey: data.answerKey
+	}
+}
+
+export function removeAnswerImage({answerKey, imageKey}) {
+	return {
+		type: REMOVE_ANSWER_IMAGE,
+		answerKey,
+		imageKey
+	}
+}
 

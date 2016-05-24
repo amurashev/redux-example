@@ -1,72 +1,120 @@
 
-
-
 import { combineReducers } from 'redux';
 
-import { 
-	RECEIVE_QUESTIONS, APPEND_QUESTIONS,
-	UPDATE_QUESTION, 
-	UPDATE_FILTER,
-	UPDATE_FILTER_OFFSET
+import {
+	TOGGLE_WRAPPER,
+	ADD_QUESTION, QUESTION_ADDED, CHANGE_QUESTION_TEXT, CHANGE_QUESTION_CATEGORY, ADD_QUESTION_IMAGE, REMOVE_QUESTION_IMAGE,
+	ADD_ANSWER, CHANGE_ANSWER_TEXT, REMOVE_ANSWER, ADD_ANSWER_IMAGE, REMOVE_ANSWER_IMAGE
 } from '../constants/AppConstants';
 
-import QuestionCollection from '../../../../common/collections/questionCollection';
-import QuestionModel from '../../../../common/models/questionModel';
+//import QuestionModel from '../../../../common/models/questionModel';
+
+const QUESTION_TEXT_MAX_LENGTH = 255;
+const ANSWER_TEXT_MAX_LENGTH = 150;
+
+const answerInitialState = {
+	text: '',
+	count: 0,
+	you_choice: void 0,
+	images: []
+};
+
+const questionInitialState = {
+	text: '',
+	category_id: 17,
+	answers: [answerInitialState, answerInitialState],
+	images: [],
+	comments: []
+};
 
 
-
-function question(state = new QuestionModel(), action) {
+function answer(state = answerInitialState, action) {
 	switch (action.type) {
-		case UPDATE_QUESTION:
-			return new QuestionModel(action.requestQuestion);
+		case CHANGE_ANSWER_TEXT:
+			if(action.text.length > ANSWER_TEXT_MAX_LENGTH) {
+				return state;
+			} else {
+				return { ...state, text: action.text };				
+			}
+		case ADD_ANSWER_IMAGE:
+			if(state.images.length == 1) {
+				return state
+			} else {
+				let images = state.images.slice();
+				images.push(action.image);
+				return {...state, images};
+			}
+		case REMOVE_ANSWER_IMAGE:
+			return { ...state, images: state.images.filter((k, i) => i != action.imageKey)};
 		default:
 			return state;
 	}
 }
 
-function questions(state = new QuestionCollection(), action) {
 
-	Object.freeze(state); // Don't mutate state directly, always use assign()!
+function question(state = questionInitialState, action) {
 	switch (action.type) {
-		case RECEIVE_QUESTIONS:
-			return new QuestionCollection(action.requestQuestions);
 
-		case APPEND_QUESTIONS:
-			state.add(action.requestQuestions);
-			return new QuestionCollection(state.models);
+		case CHANGE_QUESTION_TEXT:
+			if(action.text.length > QUESTION_TEXT_MAX_LENGTH) {
+				return state;
+			} else {
+				return { ...state, text: action.text };
+			}
+		case CHANGE_QUESTION_CATEGORY:
+			return { ...state, category_id: action.categoryId };
+		case ADD_QUESTION_IMAGE:
+			if(state.images.length == 5) {
+				return state;
+			} else {
+				let images = state.images.slice();
+				images.push(action.image);
+				return { ...state, images };
+			}
 
-		case UPDATE_QUESTION:
-			return new QuestionCollection(state.map((model) => {
-				return model.get('id') === action.questionId ? question(model, action) : model;
-			}));
+		case REMOVE_QUESTION_IMAGE:
+			return { ...state, images: state.images.filter((k, i) => i != action.key)};
+		case ADD_ANSWER:
+			if(state.answers.length == 4) {
+				return state
+			} else {
+				let answers = state.answers.slice();
+				answers.push(answerInitialState);
+				return { ...state, answers };
+			}
+		case REMOVE_ANSWER:
+			if(state.answers.length == 2) {
+				return state
+			} else {
+				return { ...state, answers: state.answers.filter((k, i) => i != action.answerKey)};
+			}
 		
+		case CHANGE_ANSWER_TEXT:
+		case ADD_ANSWER_IMAGE:
+		case REMOVE_ANSWER_IMAGE:
+			return { ...state, answers: state.answers.map((a, i) => i === action.answerKey ? answer(a, action) : a )};
 		default:
 			return state;
 	}
 }
 
 
-
-function filter(state = {
-	type: 'vote',
-	offset: 0,
-	limit: 3,
-	category_id: 'all',
-	photo: false
+function state(state = {
+	show: false
 }, action) {
-	Object.freeze(state);
 	switch (action.type) {
-		case UPDATE_FILTER:
-			return { ...state, ...action.filter, offset: 0 };
-		case UPDATE_FILTER_OFFSET:
-			return { ...state, offset: state.offset + 3 };
+		case QUESTION_ADDED:
+			console.warn(QUESTION_ADDED, action);
+			return { ...state, show: 0 };
+		case TOGGLE_WRAPPER:
+			return { ...state, show: !state.show };
 		default:
 			return state;
 	}
 }
 
 export default combineReducers({
-	questions,
-	filter
+	state,
+	question
 });
 

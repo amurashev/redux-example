@@ -1,20 +1,17 @@
 import React, { Component } from 'react'
 
-import Image from '../components/Image';
-
-import Answer from '../components/Answer';
 
 
 export default class Question extends Component {
 
 	componentWillMount() {
 		const { wrapper } = this.props;		
-		this.props.question.get('images').setSize(($(wrapper).width() / 3 - 28)); //FIXME
+		this.props.question.get('images').setSize(($(wrapper).width() / 3 - 28));
 	}   
 
 	componentWillReceiveProps(props) {
 		const { wrapper } = props;
-		props.question.get('images').setSize(($(wrapper).width() / 3 - 28)); //FIXME
+		props.question.get('images').setSize(($(wrapper).width() / 3 - 28));
 	}
 
 
@@ -23,6 +20,7 @@ export default class Question extends Component {
 		if(!question.get('likes_is_liked')) {
 			likeQuestion(question.get('id'));
 		}
+		//console.warn('likeQuestionHandler', question.get('id'));
 	}
 
 
